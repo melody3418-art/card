@@ -86,19 +86,18 @@
       z-index: 1;
     }
 
-    /* 置中對齊「突破目標 再創佳績」上方的放大版霓虹浮水印 */
+    /* 精確定位與「突」字對齊的放大版霓虹浮水印 */
     .watermark-name {
       position: absolute;
-      top: 110px; /* 微調高度以容納較大字體 */
-      left: 0;
-      width: 100%;
-      text-align: center; /* 水平置中 */
-      padding: 0 10px;
+      top: 120px; /* 往下移，緊貼在第二行上 */
+      left: 28px; /* 開頭對齊第二行的「突」字 */
+      right: 10px;
+      text-align: left; /* 左對齊，確保「信」與「突」垂直切齊 */
       z-index: 10;
       
       font-size: 22px; /* 放大字體方便長輩看清 */
       font-weight: 900;
-      letter-spacing: 1.5px;
+      letter-spacing: 1px;
       
       color: #ffd700;
       text-shadow: 
@@ -118,10 +117,12 @@
     @keyframes pulseGlow {
       0% {
         transform: scale(0.98);
+        transform-origin: left center;
         filter: drop-shadow(0 0 3px #ffd700);
       }
       100% {
         transform: scale(1.02);
+        transform-origin: left center;
         filter: drop-shadow(0 0 10px #00f2fe);
       }
     }
@@ -253,7 +254,7 @@
     
     <div class="card">
       <img src="card.jpg" class="card-bg" alt="賀函圖片">
-      <!-- 置中浮水印（放大版，固定後綴「您好：」） -->
+      <!-- 對齊「突」字與向下置放的浮水印 -->
       <div class="watermark-name" id="nameTag">信義店 您好：</div>
     </div>
 
