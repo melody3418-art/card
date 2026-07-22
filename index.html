@@ -6,20 +6,26 @@
   <title>專屬電子賀函</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    /* 整個頁面強迫滿版置中 */
     body {
       background-color: #f0eef6;
+      width: 100vw;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
       overflow: hidden;
+      font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
       perspective: 1000px;
     }
 
-    /* 信封外部框架 */
+    /* 信封外部框架 - 鎖定畫面正中央 */
     .envelope-wrapper {
-      position: relative;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%); /* 確保絕對居中 */
       width: 320px;
       height: 220px;
       background-color: #d9534f;
@@ -71,7 +77,7 @@
       transform: translateY(0);
     }
 
-    /* 圖片設定 */
+    /* 圖片完整呈現 */
     .card-bg {
       width: 100%;
       height: 100%;
@@ -105,13 +111,19 @@
       transition: opacity 0.3s;
     }
 
-    /* --- 開啟狀態 (卡片精準疊在信封正上方) --- */
+    /* --- 開啟狀態 (保持在畫面正中央) --- */
+    
+    /* 打開時，整個信封微調下移 40px，讓彈出的卡片剛好完美佔據螢幕中心 */
+    .envelope-wrapper.open {
+      transform: translate(-50%, calc(-50% + 40px));
+    }
+
     .envelope-wrapper.open .lid {
       transform: rotateX(180deg);
       z-index: 0;
     }
 
-    /* 精準讓卡片往上稍微抽出一點點，並蓋在信封正中央 */
+    /* 卡片抽出，疊放在信封上 */
     .envelope-wrapper.open .card {
       transform: translateY(-90px) scale(1.02);
       z-index: 4;
@@ -124,8 +136,8 @@
 </head>
 <body>
 
-  <!-- 免費提示音效 -->
-  <audio id="openSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
+  <!-- 高音質免費群眾鼓掌掌聲 (Applause) -->
+  <audio id="applauseSound" src="https://assets.mixkit.co/active_storage/sfx/2012/2012-preview.mp3" preload="auto"></audio>
 
   <div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
     <div class="lid"></div>
@@ -148,11 +160,11 @@
     }
 
     function openEnvelope() {
-      // 嘗試播放音效
-      const sound = document.getElementById('openSound');
+      // 播放熱烈鼓掌聲
+      const sound = document.getElementById('applauseSound');
       if (sound) {
         sound.currentTime = 0;
-        sound.play().catch(() => {});
+        sound.play().catch(e => console.log('Audio play blocked:', e));
       }
       
       document.getElementById('envelope').classList.add('open');
