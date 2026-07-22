@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>專屬電子賀函</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #f0eef6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+      overflow: hidden;
+    }
+    .envelope-wrapper {
+      position: relative;
+      width: 320px;
+      height: 220px;
+      background-color: #d9534f;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+      cursor: pointer;
+    }
+    .lid {
+      position: absolute;
+      top: 0; left: 0; width: 0; height: 0;
+      border-left: 160px solid transparent;
+      border-right: 160px solid transparent;
+      border-top: 120px solid #c9302c;
+      transform-origin: top;
+      transition: transform 0.6s ease-in-out;
+      z-index: 3;
+    }
+    .pocket {
+      position: absolute;
+      bottom: 0; left: 0; width: 0; height: 0;
+      border-left: 160px solid #e6645d;
+      border-right: 160px solid #e6645d;
+      border-bottom: 110px solid #d9534f;
+      border-top: 110px solid transparent;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      z-index: 2;
+    }
+    .card {
+      position: absolute;
+      bottom: 10px; left: 10px;
+      width: 300px;
+      height: 420px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1;
+      overflow: hidden;
+    }
+    .card-bg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .recipient-name {
+      position: absolute;
+      top: 40px;
+      left: 20px;
+      right: 20px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #2c3e50;
+      text-align: left;
+      z-index: 2;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+    }
+    .click-hint {
+      position: absolute;
+      bottom: -40px;
+      width: 100%;
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      transition: opacity 0.3s;
+    }
+    .envelope-wrapper.open .lid {
+      transform: rotateX(180deg);
+      z-index: 0;
+    }
+    .envelope-wrapper.open .card {
+      transform: translateY(-120px) scale(1.15);
+      z-index: 4;
+    }
+    .envelope-wrapper.open .click-hint { opacity: 0; }
+  </style>
+</head>
+<body>
+
+  <div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
+    <div class="lid"></div>
+    <div class="pocket"></div>
+    
+    <div class="card">
+      <div class="recipient-name" id="nameTag">親愛的貴賓：</div>
+      <!-- 自動讀取上傳的 card.jpg -->
+      <img src="card.jpg" class="card-bg" alt="賀函圖片">
+    </div>
+
+    <div class="click-hint">▲ 點擊信封開啟賀函 ▲</div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const rawName = urlParams.get('name');
+
+    if (rawName) {
+      document.getElementById('nameTag').innerText = decodeURIComponent(rawName) + ' 您好：';
+    }
+
+    function openEnvelope() {
+      document.getElementById('envelope').classList.add('open');
+    }
+  </script>
+</body>
+</html>
