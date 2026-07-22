@@ -86,27 +86,27 @@
       z-index: 1;
     }
 
-    /* 置中對齊「突破目標 再創佳績」上方的炫炮霓虹浮水印 */
+    /* 置中對齊「突破目標 再創佳績」上方的放大版霓虹浮水印 */
     .watermark-name {
       position: absolute;
-      top: 115px; /* 移動至「突破目標 再創佳績」上方 */
+      top: 110px; /* 微調高度以容納較大字體 */
       left: 0;
       width: 100%;
       text-align: center; /* 水平置中 */
-      padding: 0 15px;
+      padding: 0 10px;
       z-index: 10;
       
-      font-size: 18px;
+      font-size: 22px; /* 放大字體方便長輩看清 */
       font-weight: 900;
-      letter-spacing: 1.2px;
+      letter-spacing: 1.5px;
       
       color: #ffd700;
       text-shadow: 
-        0 0 5px #ffd700,
-        0 0 10px #ffd700,
-        0 0 20px #00f2fe,
-        0 0 30px #00f2fe,
-        2px 2px 4px rgba(0, 0, 0, 0.9);
+        0 0 6px #ffd700,
+        0 0 12px #ffd700,
+        0 0 22px #00f2fe,
+        0 0 32px #00f2fe,
+        2px 2px 5px rgba(0, 0, 0, 0.95);
               
       animation: pulseGlow 2s ease-in-out infinite alternate;
       white-space: nowrap;
@@ -118,11 +118,11 @@
     @keyframes pulseGlow {
       0% {
         transform: scale(0.98);
-        filter: drop-shadow(0 0 2px #ffd700);
+        filter: drop-shadow(0 0 3px #ffd700);
       }
       100% {
         transform: scale(1.02);
-        filter: drop-shadow(0 0 8px #00f2fe);
+        filter: drop-shadow(0 0 10px #00f2fe);
       }
     }
 
@@ -132,7 +132,7 @@
       width: 100%;
       text-align: center;
       color: #00f2fe;
-      font-size: 12px;
+      font-size: 13px;
       letter-spacing: 1px;
       transition: opacity 0.3s;
       animation: pulse 1.8s infinite;
@@ -183,7 +183,7 @@
       border: none;
       outline: none;
       color: #fff;
-      font-size: 13px;
+      font-size: 14px;
       padding: 4px 8px;
       width: 140px;
     }
@@ -198,7 +198,7 @@
       border: none;
       padding: 6px 14px;
       border-radius: 20px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: bold;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -253,7 +253,7 @@
     
     <div class="card">
       <img src="card.jpg" class="card-bg" alt="賀函圖片">
-      <!-- 置中浮水印（於「突破目標 再創佳績」正上方） -->
+      <!-- 置中浮水印（放大版，固定後綴「您好：」） -->
       <div class="watermark-name" id="nameTag">信義店 您好：</div>
     </div>
 
@@ -267,6 +267,7 @@
   </div>
 
   <script>
+    // 格式化名稱，確保最後固定帶有「您好：」
     function formatDisplayName(text) {
       if (!text) return '信義店 您好：';
       let cleanText = text.replace(/您好[：:]?/g, '').trim();
