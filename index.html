@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>專屬電子賀函</title>
-  <!-- 引入輕量級彩帶特效庫 -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
@@ -21,7 +19,7 @@
       perspective: 1000px;
     }
 
-    /* 信封外部框架 - 鎖定螢幕正中央 */
+    /* 信封外部框架 */
     .envelope-wrapper {
       position: absolute;
       top: 50%;
@@ -112,7 +110,7 @@
       transition: opacity 0.3s;
     }
 
-    /* --- 開啟狀態 (畫面正中央) --- */
+    /* --- 開啟狀態 --- */
     .envelope-wrapper.open {
       transform: translate(-50%, calc(-50% + 90px));
     }
@@ -130,11 +128,33 @@
     .envelope-wrapper.open .click-hint {
       opacity: 0;
     }
+
+    /* --- 內建彩帶特效 CSS --- */
+    .confetti-particle {
+      position: fixed;
+      width: 10px;
+      height: 14px;
+      z-index: 9999;
+      pointer-events: none;
+      border-radius: 2px;
+      animation: confettiFall 2.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    @keyframes confettiFall {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) rotate(0deg) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--dx), var(--dy)) rotate(720deg) scale(0.6);
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- 純粹熱烈拍手聲 (完全無喊叫人聲) -->
+  <!-- 純粹熱烈拍手聲 -->
   <audio id="applauseSound" src="https://assets.mixkit.co/active_storage/sfx/2012/2012-preview.mp3" preload="auto"></audio>
 
   <div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
@@ -171,27 +191,45 @@
         // 2. 開啟信封動畫
         document.getElementById('envelope').classList.add('open');
 
-        // 3. 觸發彩帶噴發特效
-        fireConfetti();
+        // 3. 啟動內建彩帶噴發
+        createConfetti();
 
         isOpened = true;
       }
     }
 
-    // 彩帶噴發函數
-    function fireConfetti() {
-      // 左側噴發
-      confetti({
-        particleCount: 60,
-        spread: 70,
-        origin: { x: 0.2, y: 0.6 }
-      });
-      // 右側噴發
-      confetti({
-        particleCount: 60,
-        spread: 70,
-        origin: { x: 0.8, y: 0.6 }
-      });
+    // 手寫純 JS 彩帶生成器
+    function createConfetti() {
+      const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#4caf50', '#ffeb3b', '#ff9800'];
+      const totalCount = 70; // 彩帶數量
+
+      for (let i = 0; i < totalCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'confetti-particle';
+        
+        // 隨機顏色
+        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+        // 起始位置（從信封中心噴發）
+        const startX = window.innerWidth / 2;
+        const startY = window.innerHeight / 2 + 50;
+        particle.style.left = startX + 'px';
+        particle.style.top = startY + 'px';
+
+        // 隨機噴發角度與距離
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 150 + Math.random() * 300;
+        const dx = Math.cos(angle) * distance + 'px';
+        const dy = (Math.sin(angle) * distance - 100) + 'px'; // 稍微向上弧形飛散
+
+        particle.style.setProperty('--dx', dx);
+        particle.style.setProperty('--dy', dy);
+
+        document.body.appendChild(particle);
+
+        // 動畫結束後自動清除
+        setTimeout(() => particle.remove(), 2500);
+      }
     }
   </script>
 </body>
