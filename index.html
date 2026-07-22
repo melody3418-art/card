@@ -3,15 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>專屬電子賀函</title>
+  <title>AI 專屬電子賀函生成器</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
     body {
-      background-color: #f0eef6;
+      background: radial-gradient(circle at center, #1a1c2e 0%, #0f101d 100%);
       width: 100vw;
       height: 100vh;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       overflow: hidden;
@@ -22,7 +23,7 @@
     /* 信封外部框架 */
     .envelope-wrapper {
       position: absolute;
-      top: 50%;
+      top: 42%;
       left: 50%;
       transform: translate(-50%, -50%);
       width: 320px;
@@ -30,12 +31,11 @@
       background-color: #d9534f;
       border-bottom-left-radius: 8px;
       border-bottom-right-radius: 8px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+      box-shadow: 0 0 30px rgba(217, 83, 79, 0.4), 0 15px 35px rgba(0,0,0,0.5);
       cursor: pointer;
-      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.8s ease;
     }
 
-    /* 信封蓋子 */
     .lid {
       position: absolute;
       top: 0; left: 0; width: 0; height: 0;
@@ -47,7 +47,6 @@
       z-index: 3;
     }
 
-    /* 信封口袋 */
     .pocket {
       position: absolute;
       bottom: 0; left: 0; width: 0; height: 0;
@@ -60,7 +59,6 @@
       z-index: 2;
     }
 
-    /* 卡片主體 */
     .card {
       position: absolute;
       bottom: 10px;
@@ -69,14 +67,13 @@
       height: 380px;
       background-color: transparent;
       border-radius: 8px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
       transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
       z-index: 1;
       overflow: hidden;
       transform: translateY(0);
     }
 
-    /* 圖片設定 */
     .card-bg {
       width: 100%;
       height: 100%;
@@ -85,34 +82,52 @@
       display: block;
     }
 
-    /* 貴賓姓名 */
+    .ai-tag {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: #00f2fe;
+      text-transform: uppercase;
+      z-index: 2;
+      text-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
+    }
+
     .recipient-name {
       position: absolute;
-      top: 25px;
+      top: 32px;
       left: 20px;
       right: 20px;
       font-size: 20px;
       font-weight: bold;
-      color: #2c3e50;
+      color: #ffffff;
       text-align: left;
       z-index: 2;
-      text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
     }
 
-    /* 點擊提示 */
     .click-hint {
       position: absolute;
       bottom: -40px;
       width: 100%;
       text-align: center;
-      color: #666;
-      font-size: 14px;
+      color: #00f2fe;
+      font-size: 13px;
+      letter-spacing: 1px;
       transition: opacity 0.3s;
+      animation: pulse 1.8s infinite;
     }
 
-    /* --- 開啟狀態 --- */
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; transform: scale(0.98); }
+      50% { opacity: 1; transform: scale(1.02); }
+    }
+
+    /* 開啟狀態 */
     .envelope-wrapper.open {
-      transform: translate(-50%, calc(-50% + 90px));
+      transform: translate(-50%, calc(-50% + 80px));
+      box-shadow: 0 0 50px rgba(0, 242, 254, 0.5), 0 15px 35px rgba(0,0,0,0.6);
     }
 
     .envelope-wrapper.open .lid {
@@ -129,11 +144,57 @@
       opacity: 0;
     }
 
-    /* --- 內建彩帶特效 CSS --- */
+    /* 底部 AI 姓名輸入控制列 */
+    .input-box-container {
+      position: fixed;
+      bottom: 25px;
+      display: flex;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      padding: 8px 12px;
+      border-radius: 30px;
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+      z-index: 10;
+    }
+
+    .name-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 14px;
+      padding: 6px 10px;
+      width: 140px;
+    }
+
+    .name-input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .generate-btn {
+      background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+      color: #000;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .generate-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(0, 242, 254, 0.8);
+    }
+
+    /* 彩帶粒子 */
     .confetti-particle {
       position: fixed;
-      width: 10px;
-      height: 14px;
+      width: 8px;
+      height: 12px;
       z-index: 9999;
       pointer-events: none;
       border-radius: 2px;
@@ -141,32 +202,32 @@
     }
 
     @keyframes confettiFall {
-      0% {
-        opacity: 1;
-        transform: translate(0, 0) rotate(0deg) scale(1);
-      }
-      100% {
-        opacity: 0;
-        transform: translate(var(--dx), var(--dy)) rotate(720deg) scale(0.6);
-      }
+      0% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
+      100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(720deg) scale(0.5); }
     }
   </style>
 </head>
 <body>
 
-  <!-- 純粹熱烈拍手聲 -->
-  <audio id="applauseSound" src="https://assets.mixkit.co/active_storage/sfx/2012/2012-preview.mp3" preload="auto"></audio>
+  <audio id="applauseSound" src="https://actions.google.com/sounds/v1/crowds/human_applause.ogg" preload="auto"></audio>
 
   <div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
     <div class="lid"></div>
     <div class="pocket"></div>
     
     <div class="card">
+      <div class="ai-tag">✦ AI Personalized Card</div>
       <div class="recipient-name" id="nameTag">親愛的貴賓：</div>
       <img src="card.jpg" class="card-bg" alt="賀函圖片">
     </div>
 
-    <div class="click-hint">▲ 點擊信封開啟賀函 ▲</div>
+    <div class="click-hint">✦ 點擊信封 開啟 AI 賀函 ✦</div>
+  </div>
+
+  <!-- 底部輸入框工具列 -->
+  <div class="input-box-container">
+    <input type="text" id="customName" class="name-input" placeholder="輸入您的姓名...">
+    <button class="generate-btn" onclick="updateName()">生成卡片</button>
   </div>
 
   <script>
@@ -181,53 +242,52 @@
 
     function openEnvelope() {
       if (!isOpened) {
-        // 1. 播放純拍手聲
         const sound = document.getElementById('applauseSound');
         if (sound) {
           sound.currentTime = 0;
           sound.play().catch(e => console.log('Audio blocked:', e));
         }
 
-        // 2. 開啟信封動畫
         document.getElementById('envelope').classList.add('open');
-
-        // 3. 啟動內建彩帶噴發
-        createConfetti();
-
+        createTechConfetti();
         isOpened = true;
       }
     }
 
-    // 手寫純 JS 彩帶生成器
-    function createConfetti() {
-      const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#4caf50', '#ffeb3b', '#ff9800'];
-      const totalCount = 70; // 彩帶數量
+    // 更新名字功能
+    function updateName() {
+      const inputVal = document.getElementById('customName').value.trim();
+      if (inputVal) {
+        document.getElementById('nameTag').innerText = inputVal + ' 您好：';
+        // 同步更新網址，方便他們複製分享
+        const newUrl = window.location.pathname + '?name=' + encodeURIComponent(inputVal);
+        window.history.pushState({path: newUrl}, '', newUrl);
+      }
+    }
+
+    function createTechConfetti() {
+      const colors = ['#ffd700', '#e0e0e0', '#00f2fe', '#4facfe', '#ffffff', '#ff007f'];
+      const totalCount = 80;
 
       for (let i = 0; i < totalCount; i++) {
         const particle = document.createElement('div');
         particle.className = 'confetti-particle';
-        
-        // 隨機顏色
         particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
 
-        // 起始位置（從信封中心噴發）
         const startX = window.innerWidth / 2;
-        const startY = window.innerHeight / 2 + 50;
+        const startY = window.innerHeight / 2;
         particle.style.left = startX + 'px';
         particle.style.top = startY + 'px';
 
-        // 隨機噴發角度與距離
         const angle = Math.random() * Math.PI * 2;
-        const distance = 150 + Math.random() * 300;
+        const distance = 180 + Math.random() * 320;
         const dx = Math.cos(angle) * distance + 'px';
-        const dy = (Math.sin(angle) * distance - 100) + 'px'; // 稍微向上弧形飛散
+        const dy = (Math.sin(angle) * distance - 120) + 'px';
 
         particle.style.setProperty('--dx', dx);
         particle.style.setProperty('--dy', dy);
 
         document.body.appendChild(particle);
-
-        // 動畫結束後自動清除
         setTimeout(() => particle.remove(), 2500);
       }
     }
