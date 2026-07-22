@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>專屬電子賀函</title>
   <style>
+    /* 基本重設與垂直水平置中 */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background-color: #f0eef6;
@@ -17,7 +18,7 @@
       perspective: 1000px;
     }
 
-    /* 信封外部框架 */
+    /* 信封外部框架 (加上動態位移平滑過渡) */
     .envelope-wrapper {
       position: relative;
       width: 320px;
@@ -27,7 +28,8 @@
       border-bottom-right-radius: 8px;
       box-shadow: 0 15px 35px rgba(0,0,0,0.2);
       cursor: pointer;
-      transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+      /* 確保打開時的移動更平滑 */
+      transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* 信封蓋子 */
@@ -55,23 +57,23 @@
       z-index: 2;
     }
 
-    /* 卡片主體 - 背景透明避免邊框 */
+    /* 卡片主體 - 背景透明，完美融入圖片 */
     .card {
       position: absolute;
-      bottom: 10px;
+      bottom: 10px; /* 初始在信封內部的深度 */
       left: 10px;
       width: 300px;
-      height: 420px;
-      background-color: transparent;
+      height: 400px; /* 稍微縮短高度，更像從信封抽出來 */
+      background-color: transparent; /* 背景透明 */
       border-radius: 8px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 1;
       overflow: hidden;
       transform: translateY(0);
     }
 
-    /* 圖片完整顯示 */
+    /* 卡片背景圖片 - 完整顯示 */
     .card-bg {
       width: 100%;
       height: 100%;
@@ -105,21 +107,27 @@
       transition: opacity 0.3s;
     }
 
-    /* --- 開啟狀態 (精準置中) --- */
+    /* --- 開啟狀態 (黃金視覺中心) --- */
+
+    /* 信封整體稍微下移，為蓋子翻開和卡片騰出空间，保持視覺平衡 */
     .envelope-wrapper.open {
-      transform: translateY(70px);
+      transform: translateY(50px);
     }
 
+    /* 信封蓋子翻開 */
     .envelope-wrapper.open .lid {
       transform: rotateX(180deg);
-      z-index: 0;
+      z-index: 0; /* 翻開後跑到卡片後面 */
     }
 
+    /* 卡片彈出至精準位置：剛好覆蓋在信封上方 */
     .envelope-wrapper.open .card {
-      transform: translateY(-180px) scale(1.05);
-      z-index: 4;
+      /* 核心修正：調整 translateY 的數值，讓卡片底部剛好在信封上邊緣 */
+      transform: translateY(-210px);
+      z-index: 4; /* 彈出後要在最前面 */
     }
 
+    /* 提示文字隱藏 */
     .envelope-wrapper.open .click-hint {
       opacity: 0;
     }
@@ -127,15 +135,18 @@
 </head>
 <body>
 
-  <!-- 免費開信封/翻頁音效 -->
+  <!-- 更穩定的免費開信封/紙張音效來源 -->
   <audio id="openSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
 
+  <!-- 信封主體 -->
   <div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
     <div class="lid"></div>
     <div class="pocket"></div>
     
+    <!-- 內含的卡片 -->
     <div class="card">
       <div class="recipient-name" id="nameTag">親愛的貴賓：</div>
+      <!-- 讀取上傳的 card.jpg -->
       <img src="card.jpg" class="card-bg" alt="賀函圖片">
     </div>
 
@@ -143,6 +154,7 @@
   </div>
 
   <script>
+    // 自動取得網址帶入的賓客名字 (?name=張總裁)
     const urlParams = new URLSearchParams(window.location.search);
     const rawName = urlParams.get('name');
 
@@ -150,16 +162,25 @@
       document.getElementById('nameTag').innerText = decodeURIComponent(rawName) + ' 您好：';
     }
 
-    let isOpen = false;
+    let isOpened = false; // 增加一個狀態旗標
+
+    // 點擊信封後的處理函數
     function openEnvelope() {
-      if (!isOpen) {
-        // 播放音效
+      if (!isOpened) {
+        // 1. 嘗試播放音效
         const sound = document.getElementById('openSound');
-        sound.play().catch(e => console.log('Audio play prevented'));
         
-        // 開啟動畫
+        // 確保音效載入並嘗試播放，捕捉可能的權限錯誤
+        sound.play().then(() => {
+          console.log("音效播放成功");
+        }).catch(error => {
+          console.log("音效播放被瀏覽器阻擋，通常需要使用者先有互動。即使這次沒聲音，卡片動畫仍會進行。", error);
+        });
+
+        // 2. 執行開啟動畫
         document.getElementById('envelope').classList.add('open');
-        isOpen = true;
+        
+        isOpened = true; // 標記為已開啟，防止重複點擊觸發
       }
     }
   </script>
