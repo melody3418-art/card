@@ -20,12 +20,12 @@
       perspective: 1000px;
     }
 
-    /* 信封外部框架 - 鎖定畫面正中央 */
+    /* 信封外部框架 - 初始狀態鎖定螢幕正中央 */
     .envelope-wrapper {
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%); /* 確保絕對居中 */
+      transform: translate(-50%, -50%);
       width: 320px;
       height: 220px;
       background-color: #d9534f;
@@ -33,7 +33,7 @@
       border-bottom-right-radius: 8px;
       box-shadow: 0 15px 35px rgba(0,0,0,0.2);
       cursor: pointer;
-      transition: transform 0.8s ease;
+      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     /* 信封蓋子 */
@@ -111,11 +111,11 @@
       transition: opacity 0.3s;
     }
 
-    /* --- 開啟狀態 (保持在畫面正中央) --- */
+    /* --- 開啟狀態 (精準垂直居中) --- */
     
-    /* 打開時，整個信封微調下移 40px，讓彈出的卡片剛好完美佔據螢幕中心 */
+    /* 打開時，讓信封整體適度向下位移 (+90px)，平衡頂部彈出的卡片，讓整體維持在網頁最正中央 */
     .envelope-wrapper.open {
-      transform: translate(-50%, calc(-50% + 40px));
+      transform: translate(-50%, calc(-50% + 90px));
     }
 
     .envelope-wrapper.open .lid {
@@ -123,7 +123,7 @@
       z-index: 0;
     }
 
-    /* 卡片抽出，疊放在信封上 */
+    /* 卡片微抽，剛好完美蓋在信封上 */
     .envelope-wrapper.open .card {
       transform: translateY(-90px) scale(1.02);
       z-index: 4;
@@ -136,8 +136,8 @@
 </head>
 <body>
 
-  <!-- 高音質免費群眾鼓掌掌聲 (Applause) -->
-  <audio id="applauseSound" src="https://assets.mixkit.co/active_storage/sfx/2012/2012-preview.mp3" preload="auto"></audio>
+  <!-- 純粹熱烈群眾掌聲音效 (無歡呼/無耶聲) -->
+  <audio id="applauseSound" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3" preload="auto"></audio>
 
   <div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
     <div class="lid"></div>
@@ -160,7 +160,7 @@
     }
 
     function openEnvelope() {
-      // 播放熱烈鼓掌聲
+      // 播放純掌聲
       const sound = document.getElementById('applauseSound');
       if (sound) {
         sound.currentTime = 0;
