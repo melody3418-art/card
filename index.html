@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>專屬電子賀函</title>
   <style>
-    /* 基本重設與垂直水平置中 */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background-color: #f0eef6;
@@ -18,7 +17,7 @@
       perspective: 1000px;
     }
 
-    /* 信封外部框架 (加上動態位移平滑過渡) */
+    /* 信封外部框架 */
     .envelope-wrapper {
       position: relative;
       width: 320px;
@@ -56,14 +55,14 @@
       z-index: 2;
     }
 
-    /* 卡片主體 - 背景設為透明，完美融入圖片 */
+    /* 卡片主體 - 背景透明避免邊框 */
     .card {
       position: absolute;
       bottom: 10px;
       left: 10px;
       width: 300px;
-      height: 440px;
-      background-color: transparent; /* 背景透明，避免白色邊框 */
+      height: 420px;
+      background-color: transparent;
       border-radius: 8px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
       transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
@@ -72,7 +71,7 @@
       transform: translateY(0);
     }
 
-    /* 卡片背景圖片 - 完整顯示不裁切 */
+    /* 圖片完整顯示 */
     .card-bg {
       width: 100%;
       height: 100%;
@@ -106,32 +105,30 @@
       transition: opacity 0.3s;
     }
 
-    /* --- 開啟狀態的樣式 (黃金視覺中心) --- */
-
-    /* 信封整體下移，為卡片騰出上方空間，保持在螢幕中央 */
+    /* --- 開啟狀態 (精準置中) --- */
     .envelope-wrapper.open {
-      transform: translateY(80px);
+      transform: translateY(70px);
     }
 
-    /* 信封蓋子翻開 */
     .envelope-wrapper.open .lid {
       transform: rotateX(180deg);
       z-index: 0;
     }
 
-    /* 卡片精準彈出至視覺中心 (-200px) */
     .envelope-wrapper.open .card {
-      transform: translateY(-200px) scale(1.05);
+      transform: translateY(-180px) scale(1.05);
       z-index: 4;
     }
 
-    /* 提示文字隱藏 */
     .envelope-wrapper.open .click-hint {
       opacity: 0;
     }
   </style>
 </head>
 <body>
+
+  <!-- 免費開信封/翻頁音效 -->
+  <audio id="openSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
 
   <div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
     <div class="lid"></div>
@@ -146,7 +143,6 @@
   </div>
 
   <script>
-    // 自動取得網址帶入的賓客名字 (?name=張總裁)
     const urlParams = new URLSearchParams(window.location.search);
     const rawName = urlParams.get('name');
 
@@ -154,8 +150,17 @@
       document.getElementById('nameTag').innerText = decodeURIComponent(rawName) + ' 您好：';
     }
 
+    let isOpen = false;
     function openEnvelope() {
-      document.getElementById('envelope').classList.add('open');
+      if (!isOpen) {
+        // 播放音效
+        const sound = document.getElementById('openSound');
+        sound.play().catch(e => console.log('Audio play prevented'));
+        
+        // 開啟動畫
+        document.getElementById('envelope').classList.add('open');
+        isOpen = true;
+      }
     }
   </script>
 </body>
