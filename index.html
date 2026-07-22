@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>專屬電子賀函</title>
   <style>
-    /* 基本設定 */
+    /* 基本重設與垂直水平置中 */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background-color: #f0eef6;
@@ -15,10 +15,10 @@
       min-height: 100vh;
       font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
       overflow: hidden;
-      perspective: 1000px; /* 增加立體感 */
+      perspective: 1000px;
     }
 
-    /* 信封外部框架 */
+    /* 信封外部框架 (加上動態位移平滑過渡) */
     .envelope-wrapper {
       position: relative;
       width: 320px;
@@ -28,7 +28,7 @@
       border-bottom-right-radius: 8px;
       box-shadow: 0 15px 35px rgba(0,0,0,0.2);
       cursor: pointer;
-      transition: transform 0.3s;
+      transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
     }
 
     /* 信封蓋子 */
@@ -56,28 +56,27 @@
       z-index: 2;
     }
 
-    /* 卡片主體 - 核心修正點：高度與動畫 */
+    /* 卡片主體 - 背景設為透明，完美融入圖片 */
     .card {
       position: absolute;
-      bottom: 10px; /* 原始在信封內的位置 */
+      bottom: 10px;
       left: 10px;
       width: 300px;
-      height: 480px; /* 1. 增加卡片框架高度，適應直式圖片 */
-      background-color: #ffffff;
+      height: 440px;
+      background-color: transparent; /* 背景透明，避免白色邊框 */
       border-radius: 8px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      /* 2. 核心修正：加大彈出的距離 (-350px)，確保完全彈出 */
-      transition: transform 1s cubic-bezier(0.23, 1, 0.32, 1);
+      transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
       z-index: 1;
       overflow: hidden;
-      transform: translateY(0); /* 初始狀態 */
+      transform: translateY(0);
     }
 
-    /* 卡片背景圖片 - 核心修正點：完整顯示 */
+    /* 卡片背景圖片 - 完整顯示不裁切 */
     .card-bg {
       width: 100%;
       height: 100%;
-      object-fit: contain; /* 3. 確保圖片完整顯示，不裁切 */
+      object-fit: contain;
       object-position: center;
       display: block;
     }
@@ -85,10 +84,10 @@
     /* 貴賓姓名 */
     .recipient-name {
       position: absolute;
-      top: 40px; /* 名字顯示的高度 */
+      top: 30px;
       left: 20px;
       right: 20px;
-      font-size: 22px;
+      font-size: 20px;
       font-weight: bold;
       color: #2c3e50;
       text-align: left;
@@ -99,7 +98,7 @@
     /* 點擊提示 */
     .click-hint {
       position: absolute;
-      bottom: -50px;
+      bottom: -40px;
       width: 100%;
       text-align: center;
       color: #666;
@@ -107,22 +106,26 @@
       transition: opacity 0.3s;
     }
 
-    /* --- 開啟狀態的樣式 --- */
+    /* --- 開啟狀態的樣式 (黃金視覺中心) --- */
 
-    /* 信封蓋子打開 */
+    /* 信封整體下移，為卡片騰出上方空間，保持在螢幕中央 */
+    .envelope-wrapper.open {
+      transform: translateY(80px);
+    }
+
+    /* 信封蓋子翻開 */
     .envelope-wrapper.open .lid {
       transform: rotateX(180deg);
-      z-index: 0; /* 打開後跑到卡片後面 */
+      z-index: 0;
     }
 
-    /* 卡片完全彈出 */
+    /* 卡片精準彈出至視覺中心 (-200px) */
     .envelope-wrapper.open .card {
-      /* 核心修正：同時向上移動 (-350px) 並略為放大，確保完全呈現 */
-      transform: translateY(-350px) scale(1.05);
-      z-index: 4; /* 彈出後要在最前面 */
+      transform: translateY(-200px) scale(1.05);
+      z-index: 4;
     }
 
-    /* 點擊提示消失 */
+    /* 提示文字隱藏 */
     .envelope-wrapper.open .click-hint {
       opacity: 0;
     }
@@ -130,15 +133,12 @@
 </head>
 <body>
 
-  <!-- 信封主體 -->
   <div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
     <div class="lid"></div>
     <div class="pocket"></div>
     
-    <!-- 內含的卡片 -->
     <div class="card">
       <div class="recipient-name" id="nameTag">親愛的貴賓：</div>
-      <!-- 讀取上傳的 card.jpg -->
       <img src="card.jpg" class="card-bg" alt="賀函圖片">
     </div>
 
@@ -146,20 +146,17 @@
   </div>
 
   <script>
-    // 取得網址中的名字參數
+    // 自動取得網址帶入的賓客名字 (?name=張總裁)
     const urlParams = new URLSearchParams(window.location.search);
     const rawName = urlParams.get('name');
 
-    // 如果網址有名字，就替換掉預設文字
     if (rawName) {
       document.getElementById('nameTag').innerText = decodeURIComponent(rawName) + ' 您好：';
     }
 
-    // 點擊信封後加入 'open' 樣式類別
     function openEnvelope() {
       document.getElementById('envelope').classList.add('open');
     }
   </script>
 </body>
-</html>
 </html>
