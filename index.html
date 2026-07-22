@@ -20,7 +20,36 @@
       perspective: 1000px;
     }
 
-    /* 信封外部框架 (整體縮小 12%，寬度 280px，偏下佈局) */
+    /* 右上角音樂選擇器 */
+    .music-select-container {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(8px);
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 242, 254, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #00f2fe;
+      font-size: 12px;
+    }
+
+    .music-select {
+      background: rgba(15, 16, 29, 0.9);
+      color: #fff;
+      border: 1px solid #00f2fe;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* 信封外部框架 (精緻縮小版) */
     .envelope-wrapper {
       position: absolute;
       top: 52%;
@@ -82,7 +111,7 @@
       display: block;
     }
 
-    /* 方案 B：AI 霓虹金屬遮罩框 (隨縮小精準等比調整) */
+    /* AI 霓虹金屬遮罩框 */
     .name-mask-box {
       position: absolute;
       top: 20px;
@@ -234,15 +263,24 @@
 </head>
 <body>
 
-  <!-- 穩定可用之歡慶歡樂背景音樂 -->
-  <audio id="bgMusic" src="https://assets.mixkit.co/music/preview/mixkit-celebration-01-241.mp3" preload="auto" loop></audio>
+  <!-- 音樂選擇下拉選單 -->
+  <div class="music-select-container">
+    🎵 音效選擇：
+    <select id="musicSelect" class="music-select" onchange="changeMusic()">
+      <option value="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a7321d.mp3?filename=celebration-14281.mp3">1. 歡慶華麗樂章</option>
+      <option value="https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=happy-festive-112188.mp3">2. 熱鬧開幕電子樂</option>
+      <option value="https://cdn.pixabay.com/download/audio/2021/08/09/audio_884e27f42d.mp3?filename=orchestral-fanfare-6316.mp3">3. 喜氣勝利號角</option>
+      <option value="https://assets.mixkit.co/music/preview/mixkit-celebration-01-241.mp3">4. 歡樂慶典小品</option>
+    </select>
+  </div>
+
+  <audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a7321d.mp3?filename=celebration-14281.mp3" preload="auto" loop></audio>
 
   <div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
     <div class="lid"></div>
     <div class="pocket"></div>
     
     <div class="card">
-      <!-- 方案 B 質感遮罩框 -->
       <div class="name-mask-box">
         <div class="ai-tag">✦ AI Personalized Card</div>
         <div class="recipient-name" id="nameTag">信義店 您好：</div>
@@ -275,14 +313,57 @@
 
     let isOpened = false;
 
+    function changeMusic() {
+      const select = document.getElementById('musicSelect');
+      const music = document.getElementById('bgMusic');
+      music.src = select.value;
+      if (isOpened) {
+        music.play().catch(e => console.log('Audio switch error:', e));
+      }
+    }
+
+    // 備用合成音效：當外部音樂被阻擋時自動觸發
+    function playFallbackFanfare() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        
+        const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99]; // C E G C E G
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = freq;
+          
+          gain.gain.setValueAtTime(0.15, ctx.currentTime + idx * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.12 + 0.6);
+          
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          
+          osc.start(ctx.currentTime + idx * 0.12);
+          osc.stop(ctx.currentTime + idx * 0.12 + 0.6);
+        });
+      } catch(e) {
+        console.log('Synth sound failed', e);
+      }
+    }
+
     function openEnvelope() {
       if (!isOpened) {
-        // 播放音樂，提升音量
         const music = document.getElementById('bgMusic');
+        
+        // 保障 1：播放選定的背景音樂
         if (music) {
-          music.volume = 1.0;
-          music.play().catch(e => console.log('Audio blocked:', e));
+          music.volume = 0.8;
+          music.play().catch(e => {
+            console.log('External audio blocked, playing fallback synth.');
+          });
         }
+
+        // 保障 2：同時播放內建合成歡慶號角，確保 100% 有聲音
+        playFallbackFanfare();
 
         document.getElementById('envelope').classList.add('open');
         startContinuousEffects();
