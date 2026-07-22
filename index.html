@@ -20,7 +20,7 @@
       perspective: 1000px;
     }
 
-    /* 1. 亮金邊框與強烈呼吸金光 */
+    /* 亮金邊框與強烈呼吸金光 */
     .envelope-wrapper {
       position: absolute;
       top: 52%;
@@ -31,10 +31,10 @@
       background-color: #d9534f;
       border-bottom-left-radius: 8px;
       border-bottom-right-radius: 8px;
-      border: 3px solid #ffd700; /* 大氣燙金滾邊 */
+      border: 3px solid #ffd700;
       cursor: pointer;
       transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.8s ease;
-      animation: goldGlow 1.8s infinite alternate ease-in-out; /* 3. 強效呼吸光 */
+      animation: goldGlow 1.8s infinite alternate ease-in-out;
     }
 
     @keyframes goldGlow {
@@ -46,7 +46,6 @@
       }
     }
 
-    /* 信封上蓋（帶燙金底邊） */
     .lid {
       position: absolute;
       top: 0; left: 0; width: 0; height: 0;
@@ -59,7 +58,6 @@
       filter: drop-shadow(0 3px 5px rgba(0,0,0,0.4));
     }
 
-    /* 信封袋口袋 */
     .pocket {
       position: absolute;
       bottom: 0; left: 0; width: 0; height: 0;
@@ -72,7 +70,6 @@
       z-index: 2;
     }
 
-    /* 2. 復古金色 Wax Seal 燙金封印徽章 */
     .seal-badge {
       position: absolute;
       top: 80px;
@@ -128,10 +125,10 @@
       z-index: 1;
     }
 
-    /* 高度緊貼「突破目標」（top: 116px） */
+    /* 精確下移至 top: 122px */
     .watermark-name {
       position: absolute;
-      top: 116px; 
+      top: 122px; /* 稍微往下微調，呈現最佳黃金視覺位置 */
       left: 72px; 
       right: 5px;
       text-align: left;
@@ -254,7 +251,6 @@
 
   <div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
     <div class="lid"></div>
-    <!-- 2. 金色燙印封口勳章 -->
     <div class="seal-badge">賀</div> 
     <div class="pocket"></div>
     
