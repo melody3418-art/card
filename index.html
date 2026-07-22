@@ -20,18 +20,18 @@
       perspective: 1000px;
     }
 
-    /* 信封外部框架 (偏下佈局) */
+    /* 信封外部框架 (整體縮小 12%，寬度 280px，偏下佈局) */
     .envelope-wrapper {
       position: absolute;
       top: 52%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 320px;
-      height: 220px;
+      width: 280px;
+      height: 195px;
       background-color: #d9534f;
       border-bottom-left-radius: 8px;
       border-bottom-right-radius: 8px;
-      box-shadow: 0 0 30px rgba(217, 83, 79, 0.4), 0 15px 35px rgba(0,0,0,0.5);
+      box-shadow: 0 0 25px rgba(217, 83, 79, 0.4), 0 12px 30px rgba(0,0,0,0.5);
       cursor: pointer;
       transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.8s ease;
     }
@@ -39,9 +39,9 @@
     .lid {
       position: absolute;
       top: 0; left: 0; width: 0; height: 0;
-      border-left: 160px solid transparent;
-      border-right: 160px solid transparent;
-      border-top: 120px solid #c9302c;
+      border-left: 140px solid transparent;
+      border-right: 140px solid transparent;
+      border-top: 105px solid #c9302c;
       transform-origin: top;
       transition: transform 0.6s ease-in-out;
       z-index: 3;
@@ -50,10 +50,10 @@
     .pocket {
       position: absolute;
       bottom: 0; left: 0; width: 0; height: 0;
-      border-left: 160px solid #e6645d;
-      border-right: 160px solid #e6645d;
-      border-bottom: 110px solid #d9534f;
-      border-top: 110px solid transparent;
+      border-left: 140px solid #e6645d;
+      border-right: 140px solid #e6645d;
+      border-bottom: 95px solid #d9534f;
+      border-top: 95px solid transparent;
       border-bottom-left-radius: 8px;
       border-bottom-right-radius: 8px;
       z-index: 2;
@@ -61,10 +61,10 @@
 
     .card {
       position: absolute;
-      bottom: 10px;
+      bottom: 8px;
       left: 10px;
-      width: 300px;
-      height: 380px;
+      width: 260px;
+      height: 330px;
       background-color: transparent;
       border-radius: 8px;
       box-shadow: 0 5px 20px rgba(0,0,0,0.3);
@@ -82,24 +82,24 @@
       display: block;
     }
 
-    /* 方案 B：AI 霓虹金屬遮罩框 (精準涵蓋原圖文字) */
+    /* 方案 B：AI 霓虹金屬遮罩框 (隨縮小精準等比調整) */
     .name-mask-box {
       position: absolute;
-      top: 25px;
-      left: 15px;
-      right: 15px;
+      top: 20px;
+      left: 12px;
+      right: 12px;
       background: linear-gradient(135deg, rgba(15, 16, 29, 0.95) 0%, rgba(35, 20, 50, 0.95) 100%);
       border: 2px solid #ffd700;
-      box-shadow: 0 0 12px rgba(0, 242, 254, 0.8), inset 0 0 8px rgba(255, 215, 0, 0.5);
-      border-radius: 8px;
-      padding: 6px 12px;
+      box-shadow: 0 0 10px rgba(0, 242, 254, 0.8), inset 0 0 6px rgba(255, 215, 0, 0.5);
+      border-radius: 6px;
+      padding: 5px 10px;
       z-index: 3;
       text-align: left;
     }
 
     .ai-tag {
-      font-size: 10px;
-      letter-spacing: 1.5px;
+      font-size: 9px;
+      letter-spacing: 1.2px;
       color: #00f2fe;
       text-transform: uppercase;
       margin-bottom: 2px;
@@ -107,7 +107,7 @@
     }
 
     .recipient-name {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
       color: #ffffff;
       text-shadow: 0 0 5px #ffd700;
@@ -118,11 +118,11 @@
 
     .click-hint {
       position: absolute;
-      bottom: -40px;
+      bottom: -35px;
       width: 100%;
       text-align: center;
       color: #00f2fe;
-      font-size: 13px;
+      font-size: 12px;
       letter-spacing: 1px;
       transition: opacity 0.3s;
       animation: pulse 1.8s infinite;
@@ -135,8 +135,8 @@
 
     /* 開啟狀態 */
     .envelope-wrapper.open {
-      transform: translate(-50%, calc(-50% + 40px));
-      box-shadow: 0 0 50px rgba(0, 242, 254, 0.5), 0 15px 35px rgba(0,0,0,0.6);
+      transform: translate(-50%, calc(-50% + 35px));
+      box-shadow: 0 0 40px rgba(0, 242, 254, 0.5), 0 15px 30px rgba(0,0,0,0.6);
     }
 
     .envelope-wrapper.open .lid {
@@ -145,7 +145,7 @@
     }
 
     .envelope-wrapper.open .card {
-      transform: translateY(-130px) scale(1.02);
+      transform: translateY(-115px) scale(1.02);
       z-index: 4;
     }
 
@@ -173,9 +173,9 @@
       border: none;
       outline: none;
       color: #fff;
-      font-size: 14px;
-      padding: 6px 10px;
-      width: 150px;
+      font-size: 13px;
+      padding: 4px 8px;
+      width: 140px;
     }
 
     .name-input::placeholder {
@@ -186,9 +186,9 @@
       background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
       color: #000;
       border: none;
-      padding: 8px 16px;
+      padding: 6px 14px;
       border-radius: 20px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: bold;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -202,8 +202,8 @@
     /* 彩帶粒子 */
     .confetti-particle {
       position: fixed;
-      width: 8px;
-      height: 12px;
+      width: 7px;
+      height: 11px;
       z-index: 9999;
       pointer-events: none;
       border-radius: 2px;
@@ -218,8 +218,8 @@
     /* 煙火火花粒子 */
     .firework-spark {
       position: fixed;
-      width: 5px;
-      height: 5px;
+      width: 4px;
+      height: 4px;
       border-radius: 50%;
       z-index: 9998;
       pointer-events: none;
@@ -234,8 +234,8 @@
 </head>
 <body>
 
-  <!-- 最炫民族風音樂（副歌高潮段落） -->
-  <audio id="bgMusic" src="https://m801.com/sing/zuixuanminzufeng.mp3" preload="auto" loop></audio>
+  <!-- 穩定可用之歡慶歡樂背景音樂 -->
+  <audio id="bgMusic" src="https://assets.mixkit.co/music/preview/mixkit-celebration-01-241.mp3" preload="auto" loop></audio>
 
   <div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
     <div class="lid"></div>
@@ -260,15 +260,12 @@
   </div>
 
   <script>
-    // 統一處理名字格式顯示的函式
     function formatDisplayName(text) {
       if (!text) return '信義店 您好：';
-      // 移除可能重複輸入的「您好：」或「您好」
       let cleanText = text.replace(/您好[：:]?/g, '').trim();
       return cleanText + ' 您好：';
     }
 
-    // 頁面載入時解析 URL 參數
     const urlParams = new URLSearchParams(window.location.search);
     const rawName = urlParams.get('name');
 
@@ -280,9 +277,9 @@
 
     function openEnvelope() {
       if (!isOpened) {
+        // 播放音樂，提升音量
         const music = document.getElementById('bgMusic');
         if (music) {
-          music.currentTime = 52;
           music.volume = 1.0;
           music.play().catch(e => console.log('Audio blocked:', e));
         }
@@ -299,14 +296,12 @@
         const formattedName = formatDisplayName(inputVal);
         document.getElementById('nameTag').innerText = formattedName;
         
-        // 同步更新 URL 保持一致
         const cleanNameOnly = inputVal.replace(/您好[：:]?/g, '').trim();
         const newUrl = window.location.pathname + '?name=' + encodeURIComponent(cleanNameOnly);
         window.history.pushState({path: newUrl}, '', newUrl);
       }
     }
 
-    // 持續循環放彩帶與煙火
     function startContinuousEffects() {
       spawnConfettiBatch();
       spawnFireworkBatch();
@@ -329,15 +324,15 @@
         particle.className = 'confetti-particle';
         particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
 
-        const startX = window.innerWidth / 2 + (Math.random() * 200 - 100);
+        const startX = window.innerWidth / 2 + (Math.random() * 180 - 90);
         const startY = window.innerHeight / 2 - 20;
         particle.style.left = startX + 'px';
         particle.style.top = startY + 'px';
 
         const angle = Math.random() * Math.PI * 2;
-        const distance = 150 + Math.random() * 250;
+        const distance = 140 + Math.random() * 220;
         const dx = Math.cos(angle) * distance + 'px';
-        const dy = (Math.sin(angle) * distance - 100) + 'px';
+        const dy = (Math.sin(angle) * distance - 90) + 'px';
 
         particle.style.setProperty('--dx', dx);
         particle.style.setProperty('--dy', dy);
@@ -355,7 +350,7 @@
         y: window.innerHeight * (0.15 + Math.random() * 0.4)
       };
 
-      for (let i = 0; i < 35; i++) {
+      for (let i = 0; i < 30; i++) {
         const spark = document.createElement('div');
         spark.className = 'firework-spark';
         spark.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
@@ -364,7 +359,7 @@
         spark.style.top = center.y + 'px';
 
         const angle = Math.random() * Math.PI * 2;
-        const speed = 40 + Math.random() * 110;
+        const speed = 35 + Math.random() * 95;
         const fx = Math.cos(angle) * speed + 'px';
         const fy = Math.sin(angle) * speed + 'px';
 
