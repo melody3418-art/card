@@ -1,169 +1,481 @@
-<script>
-  // 1. 各卡片專屬配置（card.jpg 保持原本設定不動，新增 card2 與 card3 專屬座標）
-  const cardConfigs = [
-    {
-      image: 'card.jpg',
-      top: '140px',   // 保持原本設定，完全不動
-      left: '69px'    // 保持原本設定，完全不動
-    },
-    {
-      image: 'card2.jpg',
-      top: '120px',   // card2 專屬位置 (可依視覺自由微調)
-      left: '50px'    // card2 專屬位置 (可依視覺自由微調)
-    },
-    {
-      image: 'card3.jpg',
-      top: '150px',   // card3 專屬位置 (可依視覺自由微調)
-      left: '60px'    // card3 專屬位置 (可依視覺自由微調)
-    }
-  ];
-
-  const textTemplates = [
-    "感謝有您一路相伴，願美好如期而至。✨",
-    "微小的累積，成就璀璨的輝煌。🌸",
-    "感謝您的卓越付出，期待未來繼續攜手並進。🚀"
-  ];
-
-  // 2. 店名格式化邏輯
-  function formatDisplayName(text) {
-    if (!text) return '信義店 您好：';
-    let cleanText = text.replace(/您好[：:]?/g, '').trim();
-    return cleanText + ' 您好：';
-  }
-
-  // 3. 隨機選取卡片並寫入專屬座標
-  function initRandomCard() {
-    // 隨機抽出一張卡片的設定檔
-    const config = cardConfigs[Math.floor(Math.random() * cardConfigs.length)];
-    const randomText = textTemplates[Math.floor(Math.random() * textTemplates.length)];
-
-    // 更新圖片與下方隨機文案
-    document.getElementById('cardBgImg').src = config.image;
-    document.getElementById('randomMsg').innerText = randomText;
-
-    // 更新店名標籤的位置座標 (針對該卡片特別定位)
-    const nameTag = document.getElementById('nameTag');
-    nameTag.style.top = config.top;
-    nameTag.style.left = config.left;
-
-    // 檢查是否有 URL 傳進來的 name 參數
-    const urlParams = new URLSearchParams(window.location.search);
-    const rawName = urlParams.get('name');
-    if (rawName) {
-      nameTag.innerText = formatDisplayName(decodeURIComponent(rawName));
-    }
-  }
-
-  // 頁面載入時進行隨機定位
-  window.addEventListener('DOMContentLoaded', initRandomCard);
-
-  let isOpened = false;
-
-  function playFallbackFanfare() {
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
-      
-      const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
-      notes.forEach((freq, idx) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.value = freq;
-        
-        gain.gain.setValueAtTime(0.15, ctx.currentTime + idx * 0.12);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.12 + 0.6);
-        
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        
-        osc.start(ctx.currentTime + idx * 0.12);
-        osc.stop(ctx.currentTime + idx * 0.12 + 0.6);
-      });
-    } catch(e) {
-      console.log('Synth sound failed', e);
-    }
-  }
-
-  function openEnvelope() {
-    if (!isOpened) {
-      const music = document.getElementById('bgMusic');
-      
-      if (music) {
-        music.volume = 0.8;
-        music.play().catch(e => console.log('External audio blocked'));
-      }
-
-      playFallbackFanfare();
-
-      document.getElementById('envelope').classList.add('open');
-      startContinuousEffects();
-      isOpened = true;
-    }
-  }
-
-  function startContinuousEffects() {
-    spawnConfettiBatch();
-    spawnFireworkBatch();
-
-    setInterval(() => { spawnConfettiBatch(); }, 1200);
-    setInterval(() => { spawnFireworkBatch(); }, 800);
-  }
-
-  function spawnConfettiBatch() {
-    const colors = ['#ffd700', '#e0e0e0', '#00f2fe', '#4facfe', '#ffffff', '#ff007f', '#ff5722'];
-    const count = 30;
-
-    for (let i = 0; i < count; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'confetti-particle';
-      particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-
-      const startX = window.innerWidth / 2 + (Math.random() * 180 - 90);
-      const startY = window.innerHeight / 2 - 20;
-      particle.style.left = startX + 'px';
-      particle.style.top = startY + 'px';
-
-      const angle = Math.random() * Math.PI * 2;
-      const distance = 140 + Math.random() * 220;
-      const dx = Math.cos(angle) * distance + 'px';
-      const dy = (Math.sin(angle) * distance - 90) + 'px';
-
-      particle.style.setProperty('--dx', dx);
-      particle.style.setProperty('--dy', dy);
-
-      document.body.appendChild(particle);
-      setTimeout(() => particle.remove(), 2500);
-    }
-  }
-
-  function spawnFireworkBatch() {
-    const colors = ['#ff0055', '#00f2fe', '#ffcc00', '#00ff88', '#ffffff', '#ff9900'];
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 專屬電子賀函生成器</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     
-    const center = {
-      x: window.innerWidth * (0.15 + Math.random() * 0.7),
-      y: window.innerHeight * (0.15 + Math.random() * 0.4)
-    };
-
-    for (let i = 0; i < 30; i++) {
-      const spark = document.createElement('div');
-      spark.className = 'firework-spark';
-      spark.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-      spark.style.boxShadow = `0 0 8px ${spark.style.backgroundColor}`;
-      spark.style.left = center.x + 'px';
-      spark.style.top = center.y + 'px';
-
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 35 + Math.random() * 95;
-      const fx = Math.cos(angle) * speed + 'px';
-      const fy = Math.sin(angle) * speed + 'px';
-
-      spark.style.setProperty('--fx', fx);
-      spark.style.setProperty('--fy', fy);
-
-      document.body.appendChild(spark);
-      setTimeout(() => spark.remove(), 1200);
+    body {
+      background: radial-gradient(circle at center, #1a1c2e 0%, #0f101d 100%);
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+      perspective: 1000px;
     }
-  }
-</script>
+
+    /* 亮金邊框與強烈呼吸金光 */
+    .envelope-wrapper {
+      position: absolute;
+      top: 52%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 280px;
+      height: 195px;
+      background-color: #d9534f;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      border: 3px solid #ffd700;
+      cursor: pointer;
+      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.8s ease;
+      animation: goldGlow 1.8s infinite alternate ease-in-out;
+    }
+
+    @keyframes goldGlow {
+      0% {
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.4), 0 10px 25px rgba(0,0,0,0.6);
+      }
+      100% {
+        box-shadow: 0 0 35px rgba(255, 215, 0, 0.9), 0 0 15px rgba(230, 100, 93, 0.8), 0 12px 30px rgba(0,0,0,0.8);
+      }
+    }
+
+    .lid {
+      position: absolute;
+      top: 0; left: 0; width: 0; height: 0;
+      border-left: 137px solid transparent;
+      border-right: 137px solid transparent;
+      border-top: 102px solid #c9302c;
+      transform-origin: top;
+      transition: transform 0.6s ease-in-out;
+      z-index: 3;
+      filter: drop-shadow(0 3px 5px rgba(0,0,0,0.4));
+    }
+
+    .pocket {
+      position: absolute;
+      bottom: 0; left: 0; width: 0; height: 0;
+      border-left: 137px solid #e6645d;
+      border-right: 137px solid #e6645d;
+      border-bottom: 93px solid #d9534f;
+      border-top: 93px solid transparent;
+      border-bottom-left-radius: 6px;
+      border-bottom-right-radius: 6px;
+      z-index: 2;
+    }
+
+    .seal-badge {
+      position: absolute;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 42px;
+      height: 42px;
+      background: radial-gradient(circle, #fff3a1 0%, #ffd700 50%, #b8860b 100%);
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 4px 8px rgba(0,0,0,0.5), inset 0 0 6px #ffffff;
+      border: 2px solid #ffffff;
+      z-index: 4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #8b0000;
+      font-size: 20px;
+      font-weight: 900;
+      text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.6);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      animation: sealPulse 1.5s infinite alternate;
+    }
+
+    @keyframes sealPulse {
+      0% { transform: translateX(-50%) scale(0.95); }
+      100% { transform: translateX(-50%) scale(1.08); }
+    }
+
+    .card {
+      position: absolute;
+      bottom: 8px;
+      left: 10px;
+      width: 254px;
+      height: 330px;
+      background-color: transparent;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 1;
+      overflow: hidden;
+      transform: translateY(0);
+    }
+
+    .card-bg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    /* 專屬店名標籤 (位置改由 JS 依卡片進行動態注入) */
+    .watermark-name {
+      position: absolute;
+      right: 5px;
+      text-align: left;
+      z-index: 10;
+      
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      line-height: 1.2;
+      
+      color: #ffd700;
+      text-shadow: 
+        0 0 6px #ffd700,
+        0 0 12px #ffd700,
+        0 0 22px #00f2fe,
+        0 0 32px #00f2fe,
+        2px 2px 5px rgba(0, 0, 0, 0.95);
+              
+      animation: pulseGlow 2s ease-in-out infinite alternate;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      pointer-events: none;
+    }
+
+    @keyframes pulseGlow {
+      0% {
+        transform: scale(0.98);
+        transform-origin: left center;
+        filter: drop-shadow(0 0 3px #ffd700);
+      }
+      100% {
+        transform: scale(1.02);
+        transform-origin: left center;
+        filter: drop-shadow(0 0 10px #00f2fe);
+      }
+    }
+
+    /* 點擊提示 */
+    .click-hint {
+      position: absolute;
+      bottom: -38px;
+      width: 100%;
+      text-align: center;
+      color: #ffd700;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+      transition: opacity 0.3s;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; transform: scale(0.98); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    /* 信封正下方的隨機祝福文案 */
+    .random-message {
+      position: absolute;
+      bottom: -55px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 320px;
+      text-align: center;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      line-height: 1.4;
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.8), 0 2px 4px rgba(0,0,0,0.8);
+      opacity: 0;
+      transition: opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s;
+      pointer-events: none;
+    }
+
+    /* 開啟狀態 */
+    .envelope-wrapper.open {
+      animation: none;
+      transform: translate(-50%, calc(-50% + 35px));
+      box-shadow: 0 0 50px rgba(255, 215, 0, 0.8), 0 15px 30px rgba(0,0,0,0.6);
+    }
+
+    .envelope-wrapper.open .lid {
+      transform: rotateX(180deg);
+      z-index: 0;
+    }
+
+    .envelope-wrapper.open .seal-badge {
+      opacity: 0; 
+      transform: translateX(-50%) scale(0.5);
+    }
+
+    .envelope-wrapper.open .card {
+      transform: translateY(-115px) scale(1.02);
+      z-index: 4;
+    }
+
+    .envelope-wrapper.open .click-hint {
+      opacity: 0;
+    }
+
+    /* 信封打開後，下方文案漸顯浮現 */
+    .envelope-wrapper.open .random-message {
+      opacity: 1;
+      transform: translateX(-50%) translateY(10px);
+    }
+
+    /* 彩帶粒子 */
+    .confetti-particle {
+      position: fixed;
+      width: 8px;
+      height: 12px;
+      z-index: 9999;
+      pointer-events: none;
+      border-radius: 2px;
+      animation: confettiFall 2.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    @keyframes confettiFall {
+      0% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
+      100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(720deg) scale(0.5); }
+    }
+
+    /* 煙火火花粒子 */
+    .firework-spark {
+      position: fixed;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      z-index: 9998;
+      pointer-events: none;
+      animation: fireworkExplode 1.2s ease-out forwards;
+    }
+
+    @keyframes fireworkExplode {
+      0% { opacity: 1; transform: translate(0, 0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--fx), var(--fy)) scale(0.2); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 固定播放：熱鬧開幕電子樂 -->
+  <audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=happy-festive-112188.mp3" preload="auto" loop></audio>
+
+  <div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
+    <div class="lid"></div>
+    <div class="seal-badge">賀</div> 
+    <div class="pocket"></div>
+    
+    <div class="card">
+      <img id="cardBgImg" src="card.jpg" class="card-bg" alt="賀函圖片">
+      <!-- 專屬動態店名標籤 (位置透過 JS 定位) -->
+      <div class="watermark-name" id="nameTag">信義店 您好：</div>
+    </div>
+
+    <div class="click-hint">✦ 點擊信封 開啟 AI 賀函 ✦</div>
+
+    <!-- 卡片打開後出現在信封正下方的隨機文案 -->
+    <div class="random-message" id="randomMsg">感謝有您一路相伴，願美好如期而至。✨</div>
+  </div>
+
+  <script>
+    // 1. 各卡片專屬配置（card.jpg 保持原本設定，微調 card2 與 card3 位置）
+    const cardConfigs = [
+      {
+        image: 'card.jpg',
+        top: '140px',   // card.jpg 保持原本設定
+        left: '69px'    // card.jpg 保持原本設定
+      },
+      {
+        image: 'card2.jpg',
+        top: '120px',   // card2.jpg 專屬位置 (可自行調整)
+        left: '50px'    // card2.jpg 專屬位置 (可自行調整)
+      },
+      {
+        image: 'card3.jpg',
+        top: '150px',   // card3.jpg 專屬位置 (可自行調整)
+        left: '60px'    // card3.jpg 專屬位置 (可自行調整)
+      }
+    ];
+
+    const textTemplates = [
+      "感謝有您一路相伴，願美好如期而至。✨",
+      "微小的累積，成就璀璨的輝煌。🌸",
+      "感謝您的卓越付出，期待未來繼續攜手並進。🚀"
+    ];
+
+    // 2. 店名格式化（含容錯安全保護）
+    function formatDisplayName(text) {
+      if (!text) return '信義店 您好：';
+      try {
+        let decodedText = decodeURIComponent(text);
+        let cleanText = decodedText.replace(/您好[：:]?/g, '').trim();
+        return cleanText + ' 您好：';
+      } catch (e) {
+        console.warn('URL 參數解析異常，使用預設處理:', e);
+        let cleanText = text.replace(/您好[：:]?/g, '').trim();
+        return cleanText + ' 您好：';
+      }
+    }
+
+    // 3. 隨機選取卡片（含防護罩，確保即使圖片載入失敗也不會導致白屏）
+    function initRandomCard() {
+      try {
+        const config = cardConfigs[Math.floor(Math.random() * cardConfigs.length)];
+        const randomText = textTemplates[Math.floor(Math.random() * textTemplates.length)];
+
+        const cardImg = document.getElementById('cardBgImg');
+        const randomMsg = document.getElementById('randomMsg');
+        const nameTag = document.getElementById('nameTag');
+
+        // 安全賦值
+        if (cardImg) cardImg.src = config.image;
+        if (randomMsg) randomMsg.innerText = randomText;
+
+        if (nameTag) {
+          nameTag.style.top = config.top;
+          nameTag.style.left = config.left;
+
+          const urlParams = new URLSearchParams(window.location.search);
+          const rawName = urlParams.get('name');
+          if (rawName) {
+            nameTag.innerText = formatDisplayName(rawName);
+          }
+        }
+      } catch (err) {
+        console.error('卡片初始化安全防護捕捉到錯誤:', err);
+      }
+    }
+
+    // 頁面載入時執行初始化
+    window.addEventListener('DOMContentLoaded', initRandomCard);
+
+    let isOpened = false;
+
+    // 音效播放備援
+    function playFallbackFanfare() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        
+        const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = freq;
+          
+          gain.gain.setValueAtTime(0.15, ctx.currentTime + idx * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.12 + 0.6);
+          
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          
+          osc.start(ctx.currentTime + idx * 0.12);
+          osc.stop(ctx.currentTime + idx * 0.12 + 0.6);
+        });
+      } catch(e) {
+        console.log('Audio error ignored', e);
+      }
+    }
+
+    // 開啟信封
+    function openEnvelope() {
+      if (!isOpened) {
+        const music = document.getElementById('bgMusic');
+        
+        if (music) {
+          music.volume = 0.8;
+          music.play().catch(e => console.log('Audio play blocked'));
+        }
+
+        playFallbackFanfare();
+
+        const env = document.getElementById('envelope');
+        if (env) env.classList.add('open');
+
+        startContinuousEffects();
+        isOpened = true;
+      }
+    }
+
+    function startContinuousEffects() {
+      spawnConfettiBatch();
+      spawnFireworkBatch();
+
+      setInterval(() => { spawnConfettiBatch(); }, 1200);
+      setInterval(() => { spawnFireworkBatch(); }, 800);
+    }
+
+    function spawnConfettiBatch() {
+      const colors = ['#ffd700', '#e0e0e0', '#00f2fe', '#4facfe', '#ffffff', '#ff007f', '#ff5722'];
+      const count = 30;
+
+      for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'confetti-particle';
+        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+        const startX = window.innerWidth / 2 + (Math.random() * 180 - 90);
+        const startY = window.innerHeight / 2 - 20;
+        particle.style.left = startX + 'px';
+        particle.style.top = startY + 'px';
+
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 140 + Math.random() * 220;
+        const dx = Math.cos(angle) * distance + 'px';
+        const dy = (Math.sin(angle) * distance - 90) + 'px';
+
+        particle.style.setProperty('--dx', dx);
+        particle.style.setProperty('--dy', dy);
+
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 2500);
+      }
+    }
+
+    function spawnFireworkBatch() {
+      const colors = ['#ff0055', '#00f2fe', '#ffcc00', '#00ff88', '#ffffff', '#ff9900'];
+      
+      const center = {
+        x: window.innerWidth * (0.15 + Math.random() * 0.7),
+        y: window.innerHeight * (0.15 + Math.random() * 0.4)
+      };
+
+      for (let i = 0; i < 30; i++) {
+        const spark = document.createElement('div');
+        spark.className = 'firework-spark';
+        spark.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        spark.style.boxShadow = `0 0 8px ${spark.style.backgroundColor}`;
+        spark.style.left = center.x + 'px';
+        spark.style.top = center.y + 'px';
+
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 35 + Math.random() * 95;
+        const fx = Math.cos(angle) * speed + 'px';
+        const fy = Math.sin(angle) * speed + 'px';
+
+        spark.style.setProperty('--fx', fx);
+        spark.style.setProperty('--fy', fy);
+
+        document.body.appendChild(spark);
+        setTimeout(() => spark.remove(), 1200);
+      }
+    }
+  </script>
+</body>
+</html>
