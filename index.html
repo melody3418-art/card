@@ -125,7 +125,7 @@
       z-index: 1;
     }
 
-    /* 專屬店名標籤 (位置改由 JS 依卡片進行動態注入) */
+    /* 專屬店名標籤 */
     .watermark-name {
       position: absolute;
       right: 5px;
@@ -185,10 +185,10 @@
       50% { opacity: 1; transform: scale(1.05); }
     }
 
-    /* 信封正下方的隨機祝福文案 */
+    /* 信封正下方的隨機祝福文案預設樣式 */
     .random-message {
       position: absolute;
-      bottom: -55px;
+      bottom: -60px;
       left: 50%;
       transform: translateX(-50%);
       width: 320px;
@@ -292,7 +292,7 @@
   </div>
 
   <script>
-    // 1. 各卡片專屬配置（card.jpg 保持原本設定，微調 card2 與 card3 位置）
+    // 1. 各卡片專屬配置（店名座標）
     const cardConfigs = [
       {
         image: 'card.jpg',
@@ -301,23 +301,37 @@
       },
       {
         image: 'card2.jpg',
-        top: '129px',   // card2.jpg 專屬位置 (可自行調整)
-        left: '69px'    // card2.jpg 專屬位置 (可自行調整)
+        top: '120px',   // card2.jpg 專屬位置 (第 228 行，可微調)
+        left: '50px'    // card2.jpg 專屬位置 (第 229 行，可微調)
       },
       {
         image: 'card3.jpg',
-        top: '125px',   // card3.jpg 專屬位置 (可自行調整)
-        left: '69px'    // card3.jpg 專屬位置 (可自行調整)
+        top: '150px',   // card3.jpg 專屬位置 (第 233 行，可微調)
+        left: '60px'    // card3.jpg 專屬位置 (第 234 行，可微調)
       }
     ];
 
+    // 2. 隨機文案及其專屬排版設定（避免長文案跑版）
     const textTemplates = [
-      "感謝有您一路相伴，願美好如期而至。✨",
-      "微小的累積，成就璀璨的輝煌。🌸",
-      "感謝您的卓越付出，期待未來繼續攜手並進。🚀"
+      {
+        text: "感謝有您一路相伴，願美好如期而至。✨",
+        fontSize: "15px",
+        bottom: "-60px"
+      },
+      {
+        text: "微小的累積，成就璀璨的輝煌。🌸",
+        fontSize: "15px",
+        bottom: "-60px"
+      },
+      {
+        // 專屬防跑版長文案設定：微調字體大小與垂直高度
+        text: "感謝您的卓越付出，期待未來繼續攜手並進。🚀",
+        fontSize: "13px",
+        bottom: "-62px"
+      }
     ];
 
-    // 2. 店名格式化（含容錯安全保護）
+    // 3. 店名格式化（含容錯安全保護）
     function formatDisplayName(text) {
       if (!text) return '信義店 您好：';
       try {
@@ -331,19 +345,25 @@
       }
     }
 
-    // 3. 隨機選取卡片（含防護罩，確保即使圖片載入失敗也不會導致白屏）
+    // 4. 隨機選取卡片與文案（含防護罩）
     function initRandomCard() {
       try {
         const config = cardConfigs[Math.floor(Math.random() * cardConfigs.length)];
-        const randomText = textTemplates[Math.floor(Math.random() * textTemplates.length)];
+        const msgConfig = textTemplates[Math.floor(Math.random() * textTemplates.length)];
 
         const cardImg = document.getElementById('cardBgImg');
         const randomMsg = document.getElementById('randomMsg');
         const nameTag = document.getElementById('nameTag');
 
-        // 安全賦值
+        // 安全賦值：圖片與店名
         if (cardImg) cardImg.src = config.image;
-        if (randomMsg) randomMsg.innerText = randomText;
+
+        // 安全賦值：下方的隨機文案（動態套用專屬字體與位置）
+        if (randomMsg) {
+          randomMsg.innerText = msgConfig.text;
+          randomMsg.style.fontSize = msgConfig.fontSize;
+          randomMsg.style.bottom = msgConfig.bottom;
+        }
 
         if (nameTag) {
           nameTag.style.top = config.top;
