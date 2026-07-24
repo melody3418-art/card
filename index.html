@@ -125,6 +125,7 @@
       z-index: 1;
     }
 
+    /* 還原：XX店 您好： */
     .watermark-name {
       position: absolute;
       top: 140px !important;
@@ -133,10 +134,10 @@
       text-align: left;
       z-index: 10;
       
-      font-size: 14px;       /* 微調大小以利容納完整祝福文案 */
+      font-size: 20px;
       font-weight: 900;
-      letter-spacing: 0.5px;
-      line-height: 1.3;
+      letter-spacing: 1px;
+      line-height: 1.2;
       
       color: #ffd700;
       text-shadow: 
@@ -147,8 +148,9 @@
         2px 2px 5px rgba(0, 0, 0, 0.95);
               
       animation: pulseGlow 2s ease-in-out infinite alternate;
-      white-space: normal;   /* 允許換行 */
-      word-break: break-word;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       pointer-events: none;
     }
 
@@ -165,6 +167,7 @@
       }
     }
 
+    /* 點擊提示 */
     .click-hint {
       position: absolute;
       bottom: -38px;
@@ -182,6 +185,25 @@
     @keyframes pulse {
       0%, 100% { opacity: 0.6; transform: scale(0.98); }
       50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    /* 新增：信封正下方的隨機祝福文案 */
+    .random-message {
+      position: absolute;
+      bottom: -55px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 320px;
+      text-align: center;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      line-height: 1.4;
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.8), 0 2px 4px rgba(0,0,0,0.8);
+      opacity: 0;
+      transition: opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s;
+      pointer-events: none;
     }
 
     /* 開啟狀態 */
@@ -208,6 +230,12 @@
 
     .envelope-wrapper.open .click-hint {
       opacity: 0;
+    }
+
+    /* 信封打開後，下方文案漸顯浮現 */
+    .envelope-wrapper.open .random-message {
+      opacity: 1;
+      transform: translateX(-50%) translateY(10px);
     }
 
     /* 彩帶粒子 */
@@ -255,15 +283,32 @@
     
     <div class="card">
       <img id="cardBgImg" src="card.jpg" class="card-bg" alt="賀函圖片">
-      <!-- 隨機文案標籤 -->
-      <div class="watermark-name" id="nameTag">感謝有您一路相伴，願美好如期而至。✨</div>
+      <!-- 還原：專屬動態店名標籤 -->
+      <div class="watermark-name" id="nameTag">信義店 您好：</div>
     </div>
 
     <div class="click-hint">✦ 點擊信封 開啟 AI 賀函 ✦</div>
+
+    <!-- 新位置：卡片打開後出現在信封正下方的隨機文案 -->
+    <div class="random-message" id="randomMsg">感謝有您一路相伴，願美好如期而至。✨</div>
   </div>
 
   <script>
-    // 1. 定義 3 張圖片與 3 句隨機文案
+    // 1. 店名帶入邏輯（還原上個版本）
+    function formatDisplayName(text) {
+      if (!text) return '信義店 您好：';
+      let cleanText = text.replace(/您好[：:]?/g, '').trim();
+      return cleanText + ' 您好：';
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const rawName = urlParams.get('name');
+
+    if (rawName) {
+      document.getElementById('nameTag').innerText = formatDisplayName(decodeURIComponent(rawName));
+    }
+
+    // 2. 隨機圖檔與隨機文案邏輯
     const cardImages = ['card.jpg', 'card2.jpg', 'card3.jpg'];
     const textTemplates = [
       "感謝有您一路相伴，願美好如期而至。✨",
@@ -271,16 +316,15 @@
       "感謝您的卓越付出，期待未來繼續攜手並進。🚀"
     ];
 
-    // 2. 隨機選取圖片與文案
     function initRandomCard() {
       const randomImg = cardImages[Math.floor(Math.random() * cardImages.length)];
       const randomText = textTemplates[Math.floor(Math.random() * textTemplates.length)];
 
       document.getElementById('cardBgImg').src = randomImg;
-      document.getElementById('nameTag').innerText = randomText;
+      document.getElementById('randomMsg').innerText = randomText;
     }
 
-    // 頁面載入時先完成隨機抽取
+    // 頁面載入時進行隨機設定
     window.addEventListener('DOMContentLoaded', initRandomCard);
 
     let isOpened = false;
