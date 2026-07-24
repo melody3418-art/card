@@ -185,20 +185,21 @@
       50% { opacity: 1; transform: scale(1.05); }
     }
 
-    /* 信封正下方的隨機祝福文案預設樣式 */
+    /* 信封正下方的隨機祝福文案樣式（優化寬度與行高） */
     .random-message {
       position: absolute;
-      bottom: -60px;
+      bottom: -65px;
       left: 50%;
       transform: translateX(-50%);
-      width: 320px;
+      width: 340px;
       text-align: center;
       color: #ffffff;
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: 1px;
-      line-height: 1.4;
-      text-shadow: 0 0 8px rgba(255, 215, 0, 0.8), 0 2px 4px rgba(0,0,0,0.8);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      line-height: 1.3;
+      white-space: nowrap;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 2px 5px rgba(0,0,0,0.9);
       opacity: 0;
       transition: opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s;
       pointer-events: none;
@@ -227,7 +228,8 @@
     }
 
     .envelope-wrapper.open .click-hint {
-      opacity: 0;
+      opacity: 1;
+      content: "✦ 再點一次 重新抽賀函 ✦";
     }
 
     /* 信封打開後，下方文案漸顯浮現 */
@@ -236,15 +238,25 @@
       transform: translateX(-50%) translateY(10px);
     }
 
-    /* 彩帶粒子 */
+    /* 彩帶與紅包金幣粒子 */
     .confetti-particle {
       position: fixed;
-      width: 8px;
-      height: 12px;
       z-index: 9999;
       pointer-events: none;
-      border-radius: 2px;
       animation: confettiFall 2.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    /* 純色紙片樣式 */
+    .confetti-particle.shape-rect {
+      width: 8px;
+      height: 12px;
+      border-radius: 2px;
+    }
+
+    /* 金幣/紅包 Emoji 粒子樣式 */
+    .confetti-particle.shape-emoji {
+      font-size: 20px;
+      user-select: none;
     }
 
     @keyframes confettiFall {
@@ -274,7 +286,7 @@
   <!-- 固定播放：熱鬧開幕電子樂 -->
   <audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=happy-festive-112188.mp3" preload="auto" loop></audio>
 
-  <div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
+  <div class="envelope-wrapper" id="envelope" onclick="handleEnvelopeClick()">
     <div class="lid"></div>
     <div class="seal-badge">賀</div> 
     <div class="pocket"></div>
@@ -285,7 +297,7 @@
       <div class="watermark-name" id="nameTag">信義店 您好：</div>
     </div>
 
-    <div class="click-hint">✦ 點擊信封 開啟 AI 賀函 ✦</div>
+    <div class="click-hint" id="clickHint">✦ 點擊信封 開啟 AI 賀函 ✦</div>
 
     <!-- 卡片打開後出現在信封正下方的隨機文案 -->
     <div class="random-message" id="randomMsg">感謝有您一路相伴，願美好如期而至。✨</div>
@@ -296,42 +308,41 @@
     const cardConfigs = [
       {
         image: 'card.jpg',
-        top: '140px',   // card.jpg 保持原本設定
-        left: '69px'    // card.jpg 保持原本設定
+        top: '140px',
+        left: '69px'
       },
       {
         image: 'card2.jpg',
-        top: '133px',   // card2.jpg 專屬位置 (第 228 行，可微調)
-        left: '67px'    // card2.jpg 專屬位置 (第 229 行，可微調)
+        top: '133px',
+        left: '67px'
       },
       {
         image: 'card3.jpg',
-        top: '125px',   // card3.jpg 專屬位置 (第 233 行，可微調)
-        left: '65px'    // card3.jpg 專屬位置 (第 234 行，可微調)
+        top: '125px',
+        left: '65px'
       }
     ];
 
-    // 2. 隨機文案及其專屬排版設定（避免長文案跑版）
+    // 2. 隨機文案及其專屬排版設定
     const textTemplates = [
       {
         text: "感謝有您一路相伴，願美好如期而至。✨",
-        fontSize: "15px",
-        bottom: "-60px"
+        fontSize: "17px",
+        bottom: "-65px"
       },
       {
         text: "微小的累積，成就璀璨的輝煌。🌸",
-        fontSize: "15px",
-        bottom: "-60px"
+        fontSize: "17px",
+        bottom: "-65px"
       },
       {
-        // 專屬防跑版長文案設定：微調字體大小與垂直高度
         text: "感謝您的卓越付出，期待未來繼續攜手並進。🚀",
-        fontSize: "13px",
-        bottom: "-62px"
+        fontSize: "15px",
+        bottom: "-65px"
       }
     ];
 
-    // 3. 店名格式化（含容錯安全保護）
+    // 3. 店名格式化
     function formatDisplayName(text) {
       if (!text) return '信義店 您好：';
       try {
@@ -345,7 +356,7 @@
       }
     }
 
-    // 4. 隨機選取卡片與文案（含防護罩）
+    // 4. 隨機選取卡片與文案
     function initRandomCard() {
       try {
         const config = cardConfigs[Math.floor(Math.random() * cardConfigs.length)];
@@ -355,10 +366,8 @@
         const randomMsg = document.getElementById('randomMsg');
         const nameTag = document.getElementById('nameTag');
 
-        // 安全賦值：圖片與店名
         if (cardImg) cardImg.src = config.image;
 
-        // 安全賦值：下方的隨機文案（動態套用專屬字體與位置）
         if (randomMsg) {
           randomMsg.innerText = msgConfig.text;
           randomMsg.style.fontSize = msgConfig.fontSize;
@@ -380,12 +389,12 @@
       }
     }
 
-    // 頁面載入時執行初始化
     window.addEventListener('DOMContentLoaded', initRandomCard);
 
     let isOpened = false;
+    let confettiTimer = null;
+    let fireworkTimer = null;
 
-    // 音效播放備援
     function playFallbackFanfare() {
       try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -413,50 +422,86 @@
       }
     }
 
-    // 開啟信封
-    function openEnvelope() {
+    // 點擊處理：未開時開啟，已開時「重新合上並刷新再開一次」
+    function handleEnvelopeClick() {
       if (!isOpened) {
-        const music = document.getElementById('bgMusic');
-        
-        if (music) {
-          music.volume = 0.8;
-          music.play().catch(e => console.log('Audio play blocked'));
-        }
-
-        playFallbackFanfare();
-
-        const env = document.getElementById('envelope');
-        if (env) env.classList.add('open');
-
-        startContinuousEffects();
-        isOpened = true;
+        openEnvelope();
+      } else {
+        // 已開啟狀態下，再次點擊觸發重新抽籤與刷新開啟
+        reopenEnvelope();
       }
+    }
+
+    function openEnvelope() {
+      const music = document.getElementById('bgMusic');
+      if (music) {
+        music.volume = 0.8;
+        music.play().catch(e => console.log('Audio play blocked'));
+      }
+
+      playFallbackFanfare();
+
+      const env = document.getElementById('envelope');
+      const hint = document.getElementById('clickHint');
+      if (env) env.classList.add('open');
+      if (hint) hint.innerText = "✦ 點擊重新抽卡片與祝福 ✦";
+
+      startContinuousEffects();
+      isOpened = true;
+    }
+
+    function reopenEnvelope() {
+      const env = document.getElementById('envelope');
+      if (env) env.classList.remove('open');
+
+      // 停止舊特效
+      clearInterval(confettiTimer);
+      clearInterval(fireworkTimer);
+
+      // 短暫合上信封後，重新抽籤並自動再打開
+      setTimeout(() => {
+        initRandomCard(); // 重新隨機抽卡片與文案
+        openEnvelope();   // 再次開啟
+      }, 600);
     }
 
     function startContinuousEffects() {
       spawnConfettiBatch();
       spawnFireworkBatch();
 
-      setInterval(() => { spawnConfettiBatch(); }, 1200);
-      setInterval(() => { spawnFireworkBatch(); }, 800);
+      clearInterval(confettiTimer);
+      clearInterval(fireworkTimer);
+
+      confettiTimer = setInterval(() => { spawnConfettiBatch(); }, 1200);
+      fireworkTimer = setInterval(() => { spawnFireworkBatch(); }, 800);
     }
 
+    // 5. 飄落特效：混合「彩帶、金幣 💰、紅包 🧧」
     function spawnConfettiBatch() {
       const colors = ['#ffd700', '#e0e0e0', '#00f2fe', '#4facfe', '#ffffff', '#ff007f', '#ff5722'];
-      const count = 30;
+      const luckyItems = ['💰', '🧧', '✨', '🪙', '🧧', '💰'];
+      const count = 32;
 
       for (let i = 0; i < count; i++) {
         const particle = document.createElement('div');
         particle.className = 'confetti-particle';
-        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
 
-        const startX = window.innerWidth / 2 + (Math.random() * 180 - 90);
+        // 30% 機率掉落金幣與紅包，70% 掉落彩色亮片
+        if (Math.random() < 0.35) {
+          particle.classList.add('shape-emoji');
+          particle.innerText = luckyItems[Math.floor(Math.random() * luckyItems.length)];
+        } else {
+          particle.classList.add('shape-rect');
+          particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        const startX = window.innerWidth / 2 + (Math.random() * 200 - 100);
         const startY = window.innerHeight / 2 - 20;
         particle.style.left = startX + 'px';
         particle.style.top = startY + 'px';
 
         const angle = Math.random() * Math.PI * 2;
-        const distance = 140 + Math.random() * 220;
+        const distance = 140 + Math.random() * 240;
         const dx = Math.cos(angle) * distance + 'px';
         const dy = (Math.sin(angle) * distance - 90) + 'px';
 
